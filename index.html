@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 80%;
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key="></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <!-- Load and patch test data. Remove this after providing your own data source. -->
+    <script src="mock_data.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <pre>
+Documentation:
+
+1. Get an maps API key from: https://console.developers.google.com/flows/enableapi?apiid=maps_backend&keyType=CLIENT_SIDE&reusekey=true
+2. Include the key in the script src 'maps/api/js?key=&lt;client key&gt;'.
+
+3. Add your location API
+3.1 Build location api returning points in [{"lat": "float", "lng": "float"}, ...] format.
+3.2 Configure locationApi URL, remove mock ajax_response .
+3.3 Extract location api key from session.
+    </pre>
+    <script>
+        var icon = {
+            path: google.maps.SymbolPath.CIRCLE,
+            fillOpacity: 0.5,
+            fillColor: '#C6203C',
+            strokeOpacity: 1.0,
+            strokeColor: '#C6203C',
+            strokeWeight: 3.0,
+            scale: 5
+        };
+
+        function loadData() {
+            var locationApi = 'http://example.com/api/Location',
+                apiToken;  // TODO: get this from the request?
+            $.ajax({
+                url: locationApi,
+                data: {'token': apiToken}
+            }).done(initMap);
+        }
+
+        function initMap(data) {
+            var map;
+            var bounds = new google.maps.LatLngBounds();
+
+            map = new google.maps.Map(document.getElementById('map'));
+
+            data.forEach(function(v, i) {
+                var position = {lat: parseFloat(v.lat), lng: parseFloat(v.lng)};
+                var title = 'lat: ' + v.lat + ' ' + 'lng: ' + v.lng;
+                var marker = new google.maps.Marker({
+                    position: position,
+                    map: map,
+                    title: title,
+                    icon: icon
+                });
+                bounds.extend(marker.position);
+            });
+
+            // Fit map bounds to the plotted points
+            map.fitBounds(bounds);
+        }
+
+        loadData();
+    </script>
+    </body>
+</html>
